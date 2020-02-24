@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/256dpi/lungo v0.1.10 // indirect
+	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/fhmq/hmq v0.0.0-20200119031921-55f1f1aa8001
 	github.com/golang/protobuf v1.3.2
 	github.com/graphql-go/graphql v0.7.9

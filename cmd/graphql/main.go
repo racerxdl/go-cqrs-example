@@ -6,6 +6,7 @@ import (
 	"github.com/racerxdl/go-cqrs-example/gql"
 	"github.com/racerxdl/go-cqrs-example/protocol"
 	"github.com/racerxdl/go-cqrs-example/protoserver"
+	"github.com/racerxdl/go-cqrs-example/queueManager"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"net/http"
@@ -23,19 +24,19 @@ func GetReaderClient() protocol.ContactReaderClient {
 	return protocol.NewContactReaderClient(conn)
 }
 
-func GetWriterClient() protocol.ContactWriterClient {
-	log.Infof("Connecting to %s (Writer)", protoserver.LocalConnectWriter)
-	conn, err := grpc.Dial(protoserver.LocalConnectWriter, protoserver.DialOptions)
-	if err != nil {
-		log.Fatalf("Cannot connect to Writer: %s", err)
-	}
-
-	return protocol.NewContactWriterClient(conn)
+func GetWriterClient(queue queueManager.QueueManager) protocol.ContactWriterClient {
+	return protoserver.MakeMQTTWriterClient(queue)
 }
 
 func main() {
+	queue, err := queueManager.MakeMQTTQueueManager("tcp://localhost:1883")
+
+	if err != nil {
+		log.Fatalf("Error connecting to MQTTServer: %s", err)
+	}
+
 	cr := GetReaderClient()
-	cw := GetWriterClient()
+	cw := GetWriterClient(queue)
 
 	schema, err := gql.GetSchema()
 	if err != nil {

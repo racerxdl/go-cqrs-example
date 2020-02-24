@@ -8,7 +8,7 @@ import (
 type contactReader struct {
 }
 
-func MakeContactReader() protocol.ContactWriterServer {
+func MakeContactReader() protocol.ContactReaderServer {
 	return nil
 }
 
