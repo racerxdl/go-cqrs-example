@@ -37,7 +37,7 @@ func (q *mqttQueueManager) Subscribe(topic string, cb func(data interface{})) {
 
 func (q *mqttQueueManager) Publish(topic string, payload interface{}) error {
 	if q.client != nil {
-		t := q.client.Publish(topic, defaultQOS, true, payload)
+		t := q.client.Publish(topic, defaultQOS, false, payload)
 		if !t.WaitTimeout(defaultTimeout) {
 			return fmt.Errorf("timeout publishing")
 		}

@@ -3,25 +3,31 @@ package main
 import (
 	"github.com/racerxdl/go-cqrs-example/protocol"
 	"github.com/racerxdl/go-cqrs-example/protoserver"
+	"github.com/racerxdl/go-cqrs-example/queueManager"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"net"
 )
 
 var log = logrus.StandardLogger()
 
+func GetWriterDatabaseClient() protocol.ContactWriterClient {
+	log.Infof("Connecting to %s (Database Writer)", protoserver.LocalConnectDatabase)
+	conn, err := grpc.Dial(protoserver.LocalConnectDatabase, protoserver.DialOptions)
+	if err != nil {
+		log.Fatalf("Cannot connect to reader: %s", err)
+	}
+
+	return protocol.NewContactWriterClient(conn)
+}
+
 func main() {
-	lis, err := net.Listen("tcp", protoserver.WriterListen)
+	q, err := queueManager.MakeMQTTQueueManager("tcp://localhost:1883")
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatalf("Error connecting to MQTT: %s", err)
 	}
-	grpcServer := grpc.NewServer()
 
-	server := protoserver.MakeContactWriter()
+	qw := protoserver.MakeQueueWriter(q, GetWriterDatabaseClient())
 
-	protocol.RegisterContactWriterServer(grpcServer, server)
-	err = grpcServer.Serve(lis)
-	if err != nil {
-		log.Fatalf("Error serving gRPC: %s", err)
-	}
+	log.Infof("Queue Writer initialized and waiting")
+	qw.Wait()
 }

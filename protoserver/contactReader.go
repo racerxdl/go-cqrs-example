@@ -6,18 +6,19 @@ import (
 )
 
 type contactReader struct {
+	client protocol.ContactReaderClient
 }
 
-func MakeContactReader() protocol.ContactReaderServer {
-	return nil
+func MakeContactReaderProxy(client protocol.ContactReaderClient) protocol.ContactReaderServer {
+	return &contactReader{
+		client: client,
+	}
 }
 
-func (cr *contactReader) GetContact(context.Context, *protocol.ContactReference) (*protocol.ContactRequestResponse, error) {
-	return nil, nil
-
+func (cr *contactReader) GetContact(ctx context.Context, contactReference *protocol.ContactReference) (*protocol.ContactRequestResponse, error) {
+	return cr.client.GetContact(ctx, contactReference)
 }
 
-func (cr *contactReader) ListContacts(context.Context, *protocol.ListContactsFilter) (*protocol.ContactArrayRequestResponse, error) {
-	return nil, nil
-
+func (cr *contactReader) ListContacts(ctx context.Context, listContactsFilter *protocol.ListContactsFilter) (*protocol.ContactArrayRequestResponse, error) {
+	return cr.client.ListContacts(ctx, listContactsFilter)
 }
