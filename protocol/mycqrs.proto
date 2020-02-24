@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package protocol;
+
+import "google/protobuf/timestamp.proto";
+
+message Contact {
+    string id = 1;
+    string name = 2;
+
+    google.protobuf.Timestamp last_updated = 5;
+}
+
+message RequestResponse {
+
+    enum StatusEnum {
+        OK = 0;
+        ERROR = 1;
+    }
+
+    StatusEnum status = 1;
+    string Message = 2;
+}
+
+message ContactRequestResponse {
+    RequestResponse response = 1;
+    Contact contact = 2;
+}
+
+message ContactArrayRequestResponse {
+    RequestResponse response = 1;
+    repeated Contact contact = 2;
+}
+
+message ContactReference {
+    string id = 1;
+}
+
+message ListContactsFilter {
+    int32 count = 1;
+}
+
+service ContactWriter {
+    rpc AddContact (Contact) returns (RequestResponse) {}
+    rpc UpdateContact (Contact) returns (RequestResponse) {}
+    rpc DeleteContact (ContactReference) returns (RequestResponse) {}
+}
+
+service ContactReader {
+    rpc GetContact(ContactReference) returns (ContactRequestResponse) {}
+    rpc ListContacts(ListContactsFilter) returns (ContactArrayRequestResponse) {}
+}
