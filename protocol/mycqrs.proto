@@ -40,13 +40,32 @@ message ListContactsFilter {
     int32 count = 1;
 }
 
+message ContactArray {
+    repeated Contact contacts = 1;
+}
+
+message ContactReferenceArray {
+    repeated ContactReference contacts = 1;
+}
+
+message ReverseContactNameResponse {
+    RequestResponse response = 1;
+    Contact contact = 2;
+    string reversedName = 3;
+}
+
 service ContactWriter {
     rpc AddContact (Contact) returns (RequestResponse) {}
     rpc UpdateContact (Contact) returns (RequestResponse) {}
     rpc DeleteContact (ContactReference) returns (RequestResponse) {}
+
+    rpc AddContacts(ContactArray) returns (RequestResponse) {}
+    rpc DeleteContacts(ContactReferenceArray) returns (RequestResponse) {}
 }
 
 service ContactReader {
     rpc GetContact(ContactReference) returns (ContactRequestResponse) {}
     rpc ListContacts(ListContactsFilter) returns (ContactArrayRequestResponse) {}
+
+    rpc GetContactInvertedName(ContactReference) returns (ReverseContactNameResponse) {}
 }
